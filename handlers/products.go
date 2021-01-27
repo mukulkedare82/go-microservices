@@ -16,6 +16,10 @@ func NewProducts(logger *log.Logger) *Products {
 }
 
 func (p *Products) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
+	p.getProducts(rw, req)
+}
+
+func (p *Products) getProducts(rw http.ResponseWriter, req *http.Request) {
 	lp := data.GetProducts()
 
 	/*
