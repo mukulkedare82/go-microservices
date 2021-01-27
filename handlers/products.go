@@ -16,7 +16,15 @@ func NewProducts(logger *log.Logger) *Products {
 }
 
 func (p *Products) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	p.getProducts(rw, req)
+	if req.Method == http.MethodGet {
+		p.getProducts(rw, req)
+		return
+	}
+
+	// handle an update
+
+	// catch all
+	rw.WriteHeader(http.StatusNotImplemented)
 }
 
 func (p *Products) getProducts(rw http.ResponseWriter, req *http.Request) {
