@@ -18,11 +18,13 @@ func main() {
 	// create request handlers
 	hh := handlers.NewHello(logger)
 	gh := handlers.NewGoodBye(logger)
+	ph := handlers.NewProducts(logger)
 
 	// create your serveMux instance and register handlers
 	sm := http.NewServeMux()
 	sm.Handle("/", hh)
 	sm.Handle("/goodbye", gh)
+	sm.Handle("/products", ph)
 
 	//http.ListenAndServe(":9090", sm)
 
