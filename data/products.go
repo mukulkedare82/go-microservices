@@ -1,6 +1,10 @@
 package data
 
-import "time"
+import (
+	"encoding/json"
+	"io"
+	"time"
+)
 
 // Product defines structure payload for API
 type Product struct {
@@ -14,13 +18,24 @@ type Product struct {
 	DeletedOn   string  `json:"-"`
 }
 
-// about struct tags in go
+// about "struct tags" in go
 // allows adding annotations to struct fields
 // during parsing we can use these annotations
 // Ex:
 // json is the struct tag for json parsing. we can name, omitempty, ignore, as key
 
-func GetProducts() []*Product {
+// about "slice of struct" in go
+// we can define a type which is slice of another struct
+// kind of derived/custom type
+type Products []*Product
+
+// json encode Products (slice of products)
+func (p *Products) ToJSON(w io.Writer) error {
+	e := json.NewEncoder(w)
+	return e.Encode(p) // returns an Error, writes data directly to io.Wrtier
+}
+
+func GetProducts() Products {
 	return productList
 }
 
