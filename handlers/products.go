@@ -21,6 +21,11 @@ func (p *Products) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if req.Method == http.MethodPost {
+		p.addProduct(rw, req)
+		return
+	}
+
 	// handle an update
 
 	// catch all
@@ -28,6 +33,7 @@ func (p *Products) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (p *Products) getProducts(rw http.ResponseWriter, req *http.Request) {
+	p.logger.Println("Handle Get Products")
 	lp := data.GetProducts()
 
 	/*
@@ -50,5 +56,22 @@ func (p *Products) getProducts(rw http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		http.Error(rw, "unable to encode json", http.StatusInternalServerError)
 	}
+
+}
+
+func (p *Products) addProduct(rw http.ResponseWriter, req *http.Request) {
+	p.logger.Println("Handle POST Products")
+
+	// about request ioreader,  it buffers data, go does not read all the content at once
+	// ioreader reads data from http request chunk by chunk
+
+	prod := &data.Product{}
+	err := prod.FromJSON(req.Body)
+	if err != nil {
+		http.Error(rw, "unable to unmarshal json", http.StatusBadRequest)
+	}
+
+	p.logger.Printf("Prod: %#v", prod)
+	data.AddProduct(prod)
 
 }
