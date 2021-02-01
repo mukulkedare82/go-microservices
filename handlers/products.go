@@ -3,6 +3,8 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"regexp"
+	"strconv"
 
 	"github.com/mukulkedare/go-microservice-tuts/data"
 )
@@ -23,6 +25,37 @@ func (p *Products) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 
 	if req.Method == http.MethodPost {
 		p.addProduct(rw, req)
+		return
+	}
+
+	if req.Method == http.MethodPut {
+		p.logger.Println("Handling Put Products")
+		// expect the id in the URI
+		path := req.URL.Path
+		regex := regexp.MustCompile("/([0-9]+)")
+		group := regex.FindAllStringSubmatch(path, -1)
+
+		if len(group) != 1 {
+			http.Error(rw, "Invalid URI", http.StatusBadRequest)
+			return
+		}
+
+		if len(group[0]) != 2 {
+			p.logger.Println("Invalid URI more than one capture group")
+			http.Error(rw, "Invalid URI", http.StatusBadRequest)
+			return
+		}
+
+		idString := group[0][1]
+		id, err := strconv.Atoi(idString)
+		if err != nil {
+			p.logger.Println("Invalid URI unable to convert to number", idString)
+			http.Error(rw, "Invalid URI", http.StatusBadGateway)
+			return
+		}
+
+		p.logger.Println("got id", id)
+		p.updateProduct(id, rw, req)
 		return
 	}
 
@@ -73,5 +106,31 @@ func (p *Products) addProduct(rw http.ResponseWriter, req *http.Request) {
 
 	p.logger.Printf("Prod: %#v", prod)
 	data.AddProduct(prod)
+
+}
+
+func (p *Products) updateProduct(id int, rw http.ResponseWriter, req *http.Request) {
+	p.logger.Println("Handle PUT Product")
+
+	prod := &data.Product{}
+	err := prod.FromJSON(req.Body)
+	if err != nil {
+		http.Error(rw, "unable to unmarshal json", http.StatusBadRequest)
+	}
+
+	p.logger.Printf("Prod: %#v", prod)
+
+	err = data.UpdateProduct(id, prod)
+	if err == data.ErrProductNotFound {
+		http.Error(rw, "Product not found", http.StatusNotFound)
+		return
+	}
+
+	if err != nil {
+		http.Error(rw, "Product update failed", http.StatusInternalServerError)
+		return
+	}
+
+	return
 
 }
