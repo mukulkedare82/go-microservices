@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/mukulkedare/go-microservice-tuts/handlers"
 )
 
@@ -16,16 +17,18 @@ func main() {
 	logger := log.New(os.Stdout, "product-api", log.LstdFlags)
 
 	// create request handlers
-	//hh := handlers.NewHello(logger)
+	hh := handlers.NewHello(logger)
 	gh := handlers.NewGoodBye(logger)
 	ph := handlers.NewProducts(logger)
 
 	// create your serveMux instance and register handlers
-	sm := http.NewServeMux()
-	//	sm.Handle("/", hh) // hello world handler
+	sm := mux.NewRouter() // using gorilla mux router
+
+	sm.Handle("/", hh) // hello world handler
 	sm.Handle("/goodbye", gh)
-	//	sm.Handle("/products", ph) // todo: routing not working with post/put
-	sm.Handle("/", ph)
+	// routing was not working with post/put using go standard
+	// using gorilla mux /products route will work
+	sm.Handle("/products", ph)
 
 	//http.ListenAndServe(":9090", sm)
 
