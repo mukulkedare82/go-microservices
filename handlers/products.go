@@ -19,7 +19,7 @@ func NewProducts(logger *log.Logger) *Products {
 
 func (p *Products) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodGet {
-		p.getProducts(rw, req)
+		p.GetProducts(rw, req)
 		return
 	}
 
@@ -65,7 +65,7 @@ func (p *Products) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	rw.WriteHeader(http.StatusNotImplemented)
 }
 
-func (p *Products) getProducts(rw http.ResponseWriter, req *http.Request) {
+func (p *Products) GetProducts(rw http.ResponseWriter, req *http.Request) {
 	p.logger.Println("Handle Get Products")
 	lp := data.GetProducts()
 

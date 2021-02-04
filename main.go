@@ -17,18 +17,28 @@ func main() {
 	logger := log.New(os.Stdout, "product-api", log.LstdFlags)
 
 	// create request handlers
-	hh := handlers.NewHello(logger)
-	gh := handlers.NewGoodBye(logger)
+	//hh := handlers.NewHello(logger)
+	//gh := handlers.NewGoodBye(logger)
 	ph := handlers.NewProducts(logger)
+
+	// old go standard server mux
+	//sm := http.NewServeMux()
+	//sm.Handle("/", hh) // hello world handler
+	//sm.Handle("/goodbye", gh)
+	//sm.Handle("/products", ph) # routing not working properly with put/post
 
 	// create your serveMux instance and register handlers
 	sm := mux.NewRouter() // using gorilla mux router
 
-	sm.Handle("/", hh) // hello world handler
-	sm.Handle("/goodbye", gh)
+	//sm.Handle("/", hh) // hello world handler
+	//sm.Handle("/goodbye", gh)
 	// routing was not working with post/put using go standard
 	// using gorilla mux /products route will work
-	sm.Handle("/products", ph)
+	//sm.Handle("/products", ph)
+
+	// register specific handlers with gorilla mux
+	getRouter := sm.Methods("GET").Subrouter()
+	getRouter.HandleFunc("/", ph.GetProducts)
 
 	//http.ListenAndServe(":9090", sm)
 
