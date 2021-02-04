@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/mukulkedare/go-microservice-tuts/data"
 )
 
@@ -24,7 +25,7 @@ func (p *Products) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	if req.Method == http.MethodPost {
-		p.addProduct(rw, req)
+		p.AddProduct(rw, req)
 		return
 	}
 
@@ -92,7 +93,7 @@ func (p *Products) GetProducts(rw http.ResponseWriter, req *http.Request) {
 
 }
 
-func (p *Products) addProduct(rw http.ResponseWriter, req *http.Request) {
+func (p *Products) AddProduct(rw http.ResponseWriter, req *http.Request) {
 	p.logger.Println("Handle POST Products")
 
 	// about request ioreader,  it buffers data, go does not read all the content at once
@@ -107,6 +108,18 @@ func (p *Products) addProduct(rw http.ResponseWriter, req *http.Request) {
 	p.logger.Printf("Prod: %#v", prod)
 	data.AddProduct(prod)
 
+}
+
+func (p *Products) UpdateProduct(rw http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(rw, "unable to convert id", http.StatusBadRequest)
+	}
+
+	p.updateProduct(id, rw, req) // kept it as wrapper to work with servemux handler ServeHTTP
+
+	return
 }
 
 func (p *Products) updateProduct(id int, rw http.ResponseWriter, req *http.Request) {
