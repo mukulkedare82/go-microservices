@@ -62,22 +62,16 @@ func (p *Products) AddProduct(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (p *Products) UpdateProduct(rw http.ResponseWriter, req *http.Request) {
+	p.logger.Println("Handle PUT Product")
+
 	vars := mux.Vars(req)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		http.Error(rw, "unable to convert id", http.StatusBadRequest)
 	}
 
-	p.updateProduct(id, rw, req) // kept it as wrapper to work with servemux handler ServeHTTP
-
-	return
-}
-
-func (p *Products) updateProduct(id int, rw http.ResponseWriter, req *http.Request) {
-	p.logger.Println("Handle PUT Product")
-
 	prod := &data.Product{}
-	err := prod.FromJSON(req.Body)
+	err = prod.FromJSON(req.Body)
 	if err != nil {
 		http.Error(rw, "unable to unmarshal json", http.StatusBadRequest)
 	}
