@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"strconv"
@@ -50,11 +51,8 @@ func (p *Products) AddProduct(rw http.ResponseWriter, req *http.Request) {
 	// about request ioreader,  it buffers data, go does not read all the content at once
 	// ioreader reads data from http request chunk by chunk
 
-	prod := &data.Product{}
-	err := prod.FromJSON(req.Body)
-	if err != nil {
-		http.Error(rw, "unable to unmarshal json", http.StatusBadRequest)
-	}
+	// get value from req context by key
+	prod := req.Context().Value(KeyProduct{}).(*data.Product)
 
 	p.logger.Printf("Prod: %#v", prod)
 	data.AddProduct(prod)
@@ -70,11 +68,10 @@ func (p *Products) UpdateProduct(rw http.ResponseWriter, req *http.Request) {
 		http.Error(rw, "unable to convert id", http.StatusBadRequest)
 	}
 
-	prod := &data.Product{}
-	err = prod.FromJSON(req.Body)
-	if err != nil {
-		http.Error(rw, "unable to unmarshal json", http.StatusBadRequest)
-	}
+	// about fetching params from context
+	// get value from req context by key
+	// returns interface, pass type to it for casting return value
+	prod := req.Context().Value(KeyProduct{}).(*data.Product)
 
 	p.logger.Printf("Prod: %#v", prod)
 
@@ -91,4 +88,32 @@ func (p *Products) UpdateProduct(rw http.ResponseWriter, req *http.Request) {
 
 	return
 
+}
+
+// about using gorilla middleware
+// Use function allows adding middleware (MiddlewareFunc) to a route
+// middleware is nothing but http handler
+// with middleware pattern we can chain multiple handlers together
+// Ex: applying middleware to handle CORS validation
+
+type KeyProduct struct{}
+
+func (p *Products) MiddleWareProductValidation(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		p.logger.Println("Inside MiddleWareProductionValidation")
+		// validate request json and create prod object
+		prod := &data.Product{}
+		err := prod.FromJSON(req.Body)
+		if err != nil {
+			http.Error(rw, "unable to unmarshal json", http.StatusBadRequest)
+			return
+		}
+
+		// create request context and pass product object for next handler in chain
+		// create key(type struct or string) for the prod and pass it as key/val pair in context
+		ctx := context.WithValue(req.Context(), KeyProduct{}, prod)
+		req2 := req.WithContext(ctx)
+
+		next.ServeHTTP(rw, req2)
+	})
 }
