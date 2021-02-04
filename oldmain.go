@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+// use this for basic hello world with go http
 func mainold() {
 	http.HandleFunc("/", func(rw http.ResponseWriter, req *http.Request) {
 		log.Println("Hello World")
