@@ -26,6 +26,14 @@ import (
 	"github.com/mukulkedare/go-microservice-tuts/data"
 )
 
+// A list of products returns in the response
+// swagger:response productsResponse
+type productsResponseWrapper struct { // for swagger documentation purpose
+	// All products in the system
+	// in: body
+	Body []data.Product
+}
+
 type Products struct {
 	logger *log.Logger
 }
@@ -34,6 +42,12 @@ func NewProducts(logger *log.Logger) *Products {
 	return &Products{logger}
 }
 
+// swagger:route GET /products products listProducts
+// Returns a list of products
+// responses:
+//	200: productsResponse
+
+// GetProducts returns the products from the data store
 func (p *Products) GetProducts(rw http.ResponseWriter, req *http.Request) {
 	p.logger.Println("Handle Get Products")
 	lp := data.GetProducts()
