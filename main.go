@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 	"github.com/mukulkedare/go-microservice-tuts/handlers"
 )
@@ -33,6 +34,15 @@ func main() {
 	postRouter := sm.Methods(http.MethodPost).Subrouter()
 	postRouter.HandleFunc("/", ph.AddProduct)
 	postRouter.Use(ph.MiddleWareProductValidation)
+
+	// using redoc openapi go middleware Redoc for swagger documentation UI
+	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
+	sh := middleware.Redoc(opts, nil)
+	getRouter.Handle("/docs", sh)
+	// For redoc UI to swagger.yaml file
+	// provide access to swagger.yaml as get request using build-in go fileserver
+	// serving it from current working directory (http app directory)
+	getRouter.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
 	// create http server
 	s := &http.Server{
