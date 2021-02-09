@@ -120,6 +120,33 @@ func (p *Products) UpdateProduct(rw http.ResponseWriter, req *http.Request) {
 
 }
 
+func (p *Products) DeleteProduct(rw http.ResponseWriter, req *http.Request) {
+	p.logger.Println("Handle PUT Product")
+
+	vars := mux.Vars(req)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		http.Error(rw, "unable to convert id", http.StatusBadRequest)
+	}
+
+	p.logger.Println("Handle Delete Product", id)
+
+	err = data.DeleteProduct(id)
+
+	if err == data.ErrProductNotFound {
+		http.Error(rw, "Product not found", http.StatusNotFound)
+		return
+	}
+
+	if err != nil {
+		http.Error(rw, "Product delete failed", http.StatusInternalServerError)
+		return
+	}
+
+	return
+
+}
+
 // about using gorilla middleware
 // Use function allows adding middleware (MiddlewareFunc) to a route
 // middleware is nothing but http handler
