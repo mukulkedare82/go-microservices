@@ -26,6 +26,8 @@ import (
 	"github.com/mukulkedare/go-microservice-tuts/data"
 )
 
+// For swagger documentation
+
 // A list of products returns in the response
 // swagger:response productsResponse
 type productsResponseWrapper struct { // for swagger documentation purpose
@@ -33,6 +35,20 @@ type productsResponseWrapper struct { // for swagger documentation purpose
 	// in: body
 	Body []data.Product
 }
+
+// swagger:parameters deleteProduct
+type productIDParameterWrapper struct {
+	// The id of the product to delete from the database
+	// in: path
+	// required: true
+	ID int `json:"id"`
+}
+
+// swagger:response noContent
+type productsNoContent struct {
+}
+
+// ~ For swagger documentation
 
 type Products struct {
 	logger *log.Logger
@@ -120,6 +136,12 @@ func (p *Products) UpdateProduct(rw http.ResponseWriter, req *http.Request) {
 
 }
 
+// swagger:route DELETE /products/{id} products deleteProduct
+// Returns a list of products
+// responses:
+//	200: noContent
+
+// DeleteProduct deletes a product from the database
 func (p *Products) DeleteProduct(rw http.ResponseWriter, req *http.Request) {
 	p.logger.Println("Handle PUT Product")
 
