@@ -25,18 +25,18 @@ func main() {
 
 	// register specific handlers with gorilla mux
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/", ph.GetProducts)
+	getRouter.HandleFunc("/products", ph.GetProducts)
 
 	putRouter := sm.Methods(http.MethodPut).Subrouter()
-	putRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProduct)
+	putRouter.HandleFunc("/products/{id:[0-9]+}", ph.UpdateProduct)
 	putRouter.Use(ph.MiddleWareProductValidation)
 
 	postRouter := sm.Methods(http.MethodPost).Subrouter()
-	postRouter.HandleFunc("/", ph.AddProduct)
+	postRouter.HandleFunc("/products", ph.AddProduct)
 	postRouter.Use(ph.MiddleWareProductValidation)
 
 	deleteRouter := sm.Methods(http.MethodDelete).Subrouter()
-	deleteRouter.HandleFunc("/{id:[0-9]+}", ph.DeleteProduct)
+	deleteRouter.HandleFunc("/products/{id:[0-9]+}", ph.DeleteProduct)
 
 	// using redoc openapi go middleware Redoc for swagger documentation UI
 	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
